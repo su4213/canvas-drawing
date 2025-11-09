@@ -3,6 +3,8 @@ let startPoint = { x: undefined, y: undefined };
 let strokeColor = 'black';
 let currentTool = 'draw-free';
 let circleStart = { x: undefined, y: undefined };
+let lineStart = { x: undefined, y: undefined }; // 画直线的起点
+let isLineStartRecorded = false; // 标记是否已记录直线起点
 
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
@@ -21,11 +23,22 @@ document.getElementById('draw-free').onclick = () => {
     currentTool = 'draw-free';
     document.getElementById('draw-free').classList.add('active');
     document.getElementById('draw-circle').classList.remove('active');
+    document.getElementById('draw-line').classList.remove('active'); // 新增：移除画直线的激活样式
+    isLineStartRecorded = false;
 };
 document.getElementById('draw-circle').onclick = () => {
     currentTool = 'draw-circle';
     document.getElementById('draw-circle').classList.add('active');
     document.getElementById('draw-free').classList.remove('active');
+    document.getElementById('draw-line').classList.remove('active'); // 新增：移除画直线的激活样式
+    isLineStartRecorded = false;
+};
+document.getElementById('draw-line').onclick = () => {
+    currentTool = 'draw-line';
+    document.getElementById('draw-line').classList.add('active');
+    document.getElementById('draw-free').classList.remove('active');
+    document.getElementById('draw-circle').classList.remove('active');
+    isLineStartRecorded = false;
 };
 
 canvas.onmousedown = (e) => {
@@ -36,6 +49,14 @@ canvas.onmousedown = (e) => {
         painting = true;
     } else if (currentTool === 'draw-circle') {
         circleStart = { x, y };
+    } else if (currentTool === 'draw-line') { // 画直线逻辑
+        if (!isLineStartRecorded) {
+            lineStart = { x, y };
+            isLineStartRecorded = true;
+        } else {
+            drawLine(lineStart.x, lineStart.y, x, y);
+            isLineStartRecorded = false;
+        }
     }
 };
 
